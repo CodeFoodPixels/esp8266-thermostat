@@ -20,9 +20,6 @@ let sens = [];
 let servoOpen = false;
 
 PWM.set(5, 50, 0);
-// Timer.set(1 /* milliseconds */ , false /* repeat */ , function () {
-//     PWM.set(5, 50, 1.0);
-// }, null);
 
 // This function reads data from the DS sensors every 2 seconds
 Timer.set(2000 /* milliseconds */, true /* repeat */, function() {
@@ -41,9 +38,11 @@ Timer.set(2000 /* milliseconds */, true /* repeat */, function() {
   dt.requestTemperatures();
   let temp = dt.getTempC(sens[0]);
   print('Sensor#', 0, 'Temperature:', temp, '*C');
-  if (temp >= 26 && !servoOpen) {
+  if (temp >= 18 && !servoOpen) {
+    PWM.set(5, 50, 0.15);
     servoOpen = true;
-  } else if (temp < 26 && servoOpen) {
+  } else if (temp < 18 && servoOpen) {
+    PWM.set(5, 50, 0);
     servoOpen = false;
   }
 }, null);
