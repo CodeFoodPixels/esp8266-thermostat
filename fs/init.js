@@ -13,36 +13,34 @@ let ow = OneWire.create(pin);
 let dt = DallasTemperature.create(ow);
 // Start up the library
 dt.begin();
-// Number of sensors found on the 1-Wire bus
-let n = 0;
-// Sensors addresses
-let sens = [];
+
+let sensorAddress = '00000000';
+let sensorFound = false;
 let servoOpen = false;
 
 PWM.set(5, 50, 0);
 
 // This function reads data from the DS sensors every 2 seconds
 Timer.set(2000 /* milliseconds */, true /* repeat */, function() {
-  if (n === 0) {
-    n = dt.getDeviceCount();
-    print('Sensors found:', n);
-
-    for (let i = 0; i < n; i++) {
-      sens[i] = '01234567';
-      if (dt.getAddress(sens[i], i) === 1) {
-        print('Sensor#', i, 'address:', dt.toHexStr(sens[i]));
-      }
+    if (!sensorFound) {
+        if (dt.getDeviceCount() > 0) {
+            sensorFound = dt.getAddress(sensorAddress, 0);
+        } else {
+            return;
+        }
     }
-  }
 
-  dt.requestTemperatures();
-  let temp = dt.getTempC(sens[0]);
-  print('Sensor#', 0, 'Temperature:', temp, '*C');
-  if (temp >= 18 && !servoOpen) {
-    PWM.set(5, 50, 0.15);
-    servoOpen = true;
-  } else if (temp < 18 && servoOpen) {
-    PWM.set(5, 50, 0);
-    servoOpen = false;
-  }
+    dt.requestTemperatures();
+
+    let temp = dt.getTempC(sensorAddress);
+
+    print('Temperature:', temp, '*C');
+
+    if (temp >= 18 && !servoOpen) {
+        PWM.set(5, 50, 0.15);
+        servoOpen = true;
+    } else if (temp < 18 && servoOpen) {
+        PWM.set(5, 50, 0);
+        servoOpen = false;
+    }
 }, null);
