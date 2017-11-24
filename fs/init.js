@@ -1,46 +1,49 @@
-// Load Mongoose OS API
 load('api_timer.js');
 load('api_arduino_onewire.js');
 load('api_arduino_dallas_temp.js');
 load('api_pwm.js');
 
-// GPIO pin which has sensors data wire connected
-let pin = 2;
-
-// Initialize 1-Wire bus
-let ow = OneWire.create(pin);
-// Initialize DallasTemperature library
-let dt = DallasTemperature.create(ow);
-// Start up the library
-dt.begin();
-
-let sensorAddress = '00000000';
-let sensorFound = false;
+let tempSensor = DallasTemperature.create(OneWire.create(2));
+let tempSensorAddress = '00000000';
+let tempSensorFound = false;
 let servoOpen = false;
 
-PWM.set(5, 50, 0);
+function setup() {
+    tempSensor.begin();
+    PWM.set(5, 50, 0.15);
+    resetPWM();
 
-// This function reads data from the DS sensors every 2 seconds
-Timer.set(2000 /* milliseconds */, true /* repeat */, function() {
-    if (!sensorFound) {
-        if (dt.getDeviceCount() > 0) {
-            sensorFound = dt.getAddress(sensorAddress, 0);
-        } else {
-            return;
+    Timer.set(2000 /* milliseconds */ , true /* repeat */ , function () {
+        if (!tempSensorFound) {
+            if (tempSensor.getDeviceCount() > 0) {
+                tempSensorFound = tempSensor.getAddress(tempSensorAddress, 0);
+            } else {
+                return;
+            }
         }
-    }
 
-    dt.requestTemperatures();
+        tempSensor.requestTemperatures();
 
-    let temp = dt.getTempC(sensorAddress);
+        let temp = tempSensor.getTempC(tempSensorAddress);
 
-    print('Temperature:', temp, '*C');
+        print('Temperature:', temp, '*C');
 
-    if (temp >= 18 && !servoOpen) {
-        PWM.set(5, 50, 0.15);
-        servoOpen = true;
-    } else if (temp < 18 && servoOpen) {
-        PWM.set(5, 50, 0);
-        servoOpen = false;
-    }
-}, null);
+        if (temp < 18 && servoOpen) {
+            PWM.set(5, 50, 0.15);
+            resetPWM();
+            servoOpen = false;
+        } else if (temp >= 18 && !servoOpen) {
+            PWM.set(5, 50, 0);
+            resetPWM();
+            servoOpen = true;
+        }
+    }, null);
+}
+
+function resetPWM() {
+    Timer.set(1000, false, function () {
+        PWM.set(5, 0, 0);
+    }, null)
+}
+
+setup();
