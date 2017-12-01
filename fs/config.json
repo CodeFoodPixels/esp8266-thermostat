@@ -1,4 +1,13 @@
 {
-    temperature: 20,
-    threshold: 0
+    "temperature": 20,
+    "threshold": 0,
+    "schedule": {
+        "Monday": [],
+        "Tuesday": [],
+        "Wednesday": [],
+        "Thursday": [],
+        "Friday": [],
+        "Saturday": [],
+        "Sunday": []
+    }
 }

@@ -1,17 +1,4 @@
-load('api_file.js');
-
-let Config = {
-    _config: JSON.parse(File.read('config.json')),
-
-    get: function(key) {
-        return this._config[key] || null;
-    },
-
-    set: function(key, value) {
-        this._config[key] = value;
-        File.write(JSON.stringify(_config), 'config.json');
-    }
-};
+const util = require('util');
 
 function buildSchedule(schedule) {
     let days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -67,7 +54,20 @@ function buildSchedule(schedule) {
         builtSchedule[day][0].on = prevDayScheduleLastItem.on;
     }
 
-    Config._schedule = builtSchedule;
+    return builtSchedule;
 }
 
-buildSchedule(Config._config.schedule);
+const schedule = buildSchedule({
+    "Monday": [
+        {hour: 10, minute:30, on: true},
+        {hour: 11, minute:30, on: false}
+    ],
+    "Tuesday": [],
+    "Wednesday": [],
+    "Thursday": [],
+    "Friday": [],
+    "Saturday": [],
+    "Sunday": []
+});
+
+console.log(util.inspect(schedule, false, null))
