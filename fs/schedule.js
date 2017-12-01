@@ -1,5 +1,3 @@
-const util = require('util');
-
 function buildSchedule(schedule) {
     let days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     let builtSchedule = {
@@ -25,10 +23,10 @@ function buildSchedule(schedule) {
         for (let a = 0; a < daySchedule.length; a++) {
             let end;
 
-            if (a === daySchedule.length -1) {
+            if (a === daySchedule.length - 1) {
                 end = { hour: 24, minute: 00 };
             } else {
-                end = { hour: daySchedule[a + 1].hour, minute: daySchedule[a + 1].minute}
+                end = { hour: daySchedule[a + 1].hour, minute: daySchedule[a + 1].minute }
             }
 
             builtSchedule[day][a + 1] = {
@@ -64,18 +62,3 @@ function buildSchedule(schedule) {
 
     return builtSchedule;
 }
-
-const schedule = buildSchedule({
-    "Monday": [
-        {hour: 10, minute:30, on: true},
-        {hour: 11, minute:30, on: false}
-    ],
-    "Tuesday": [{ hour: 23, minute: 59, on: true }],
-    "Wednesday": [],
-    "Thursday": [],
-    "Friday": [],
-    "Saturday": [],
-    "Sunday": [{ hour: 00, minute: 00, on: false }]
-});
-
-console.log(util.inspect(schedule, false, null))
