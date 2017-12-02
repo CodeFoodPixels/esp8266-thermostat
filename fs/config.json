@@ -6,8 +6,12 @@
         "Tuesday": [],
         "Wednesday": [],
         "Thursday": [],
-        "Friday": [],
+        "Friday": [{"hour": 10, "minute": 30, "on": true}],
         "Saturday": [],
-        "Sunday": []
+        "Sunday": [{
+                "hour": 10,
+                "minute": 30,
+                "on": false
+            }]
     }
 }

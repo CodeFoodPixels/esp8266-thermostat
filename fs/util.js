@@ -1,3 +1,5 @@
+load("api_math.js");
+
 let Util = {
     indexOf: function(haystack, needle) {
         for (let i = 0; i < haystack.length; i++) {
@@ -23,5 +25,26 @@ let Util = {
         }
 
         return splitArray;
+    },
+
+    parseInt: function(str) {
+        let numbers = "0123456789";
+        let int = 0;
+        for (let i = 0; i < str.length; i++) {
+            if (str[i] === "0") {
+                continue;
+            }
+
+            for (let a = 0; a < 10; a++) {
+                if (str[i] === numbers[a]) {
+                    let multiplier = Math.pow(10, ((str.length - i) - 1));
+
+                    int += a * multiplier;
+                    break;
+                }
+            }
+        }
+
+        return int;
     }
 }
