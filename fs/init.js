@@ -1,3 +1,4 @@
+load('api_rpc.js');
 load('api_timer.js');
 load('api_arduino_onewire.js');
 load('api_arduino_dallas_temp.js');
@@ -6,14 +7,14 @@ load('config.js');
 load('util.js');
 load('schedule.js');
 
-Schedule.buildSchedule(Config.get('schedule'));
-
 let tempSensor = DallasTemperature.create(OneWire.create(2));
 let tempSensorAddress = '00000000';
 let tempSensorFound = false;
 let servoOpen = false;
 
 function setup() {
+    Schedule.buildSchedule(Config.get('schedule'));
+
     tempSensor.begin();
     PWM.set(5, 50, 0);
     resetPWM();
@@ -33,6 +34,16 @@ function setup() {
 
         controlServo(temp, Schedule.currentState());
     }, null);
+
+    RPC.addHandler('setconfig', function(newConfig) {
+        Config.merge(newConfig);
+        Schedule.buildSchedule(Config.get('schedule'));
+        return true;
+    });
+
+    RPC.addHandler('getconfig', function () {
+        return Config.get();
+    });
 }
 
 function controlServo(temp, on) {

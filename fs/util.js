@@ -46,5 +46,19 @@ let Util = {
         }
 
         return int;
+    },
+
+    mergeObj: function(obj1, obj2){
+        let returnObj = {};
+
+        for (let key in obj1) {
+            returnObj[key] = obj1[key];
+        }
+
+        for (let key in obj2) {
+            returnObj[key] = obj2[key];
+        }
+
+        return returnObj;
     }
 }
