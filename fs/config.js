@@ -6,7 +6,7 @@ let Config = {
 
     get: function(key) {
         if (typeof key === 'undefined') {
-            return _config;
+            return this._config;
         }
 
         return this._config[key] || null;

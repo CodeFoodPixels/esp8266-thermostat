@@ -1,17 +1,109 @@
 {
-    "temperature": 20,
-    "threshold": 0,
+    "temperature": 18,
+    "threshold": 2,
     "schedule": {
-        "Monday": [],
-        "Tuesday": [],
-        "Wednesday": [],
-        "Thursday": [],
-        "Friday": [{"hour": 10, "minute": 30, "on": true}],
-        "Saturday": [],
+        "Monday": [{
+            "hour": 5,
+            "minute": 30,
+            "on": true
+        }, {
+            "hour": 8,
+            "minute": 30,
+            "on": false
+        }, {
+            "hour": 17,
+            "minute": 30,
+            "on": true
+        }, {
+            "hour": 23,
+            "minute": 30,
+            "on": false
+        }],
+        "Tuesday": [{
+            "hour": 5,
+            "minute": 30,
+            "on": true
+        }, {
+            "hour": 8,
+            "minute": 30,
+            "on": false
+        }, {
+            "hour": 17,
+            "minute": 30,
+            "on": true
+        }, {
+            "hour": 23,
+            "minute": 30,
+            "on": false
+        }],
+        "Wednesday": [{
+            "hour": 5,
+            "minute": 30,
+            "on": true
+        }, {
+            "hour": 8,
+            "minute": 30,
+            "on": false
+        }, {
+            "hour": 17,
+            "minute": 30,
+            "on": true
+        }, {
+            "hour": 23,
+            "minute": 30,
+            "on": false
+        }],
+        "Thursday": [{
+            "hour": 5,
+            "minute": 30,
+            "on": true
+        }, {
+            "hour": 8,
+            "minute": 30,
+            "on": false
+        }, {
+            "hour": 17,
+            "minute": 30,
+            "on": true
+        }, {
+            "hour": 23,
+            "minute": 30,
+            "on": false
+        }],
+        "Friday": [{
+            "hour": 5,
+            "minute": 30,
+            "on": true
+        }, {
+            "hour": 8,
+            "minute": 30,
+            "on": false
+        }, {
+            "hour": 17,
+            "minute": 30,
+            "on": true
+        }, {
+            "hour": 23,
+            "minute": 30,
+            "on": false
+        }],
+        "Saturday": [{
+            "hour": 9,
+            "minute": 30,
+            "on": true
+        }, {
+            "hour": 23,
+            "minute": 30,
+            "on": false
+        }],
         "Sunday": [{
-                "hour": 10,
-                "minute": 30,
-                "on": false
-            }]
+            "hour": 9,
+            "minute": 30,
+            "on": true
+        }, {
+            "hour": 23,
+            "minute": 30,
+            "on": false
+        }]
     }
 }

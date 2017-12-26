@@ -1,4 +1,5 @@
 load('api_rpc.js');
+load('api_gpio.js');
 load('api_timer.js');
 load('api_arduino_onewire.js');
 load('api_arduino_dallas_temp.js');
@@ -13,6 +14,10 @@ let tempSensorFound = false;
 let servoOpen = false;
 
 function setup() {
+    GPIO.set_mode(2, GPIO.MODE_OUTPUT);
+    GPIO.write(2, 0);
+    GPIO.set_mode(2, GPIO.MODE_INPUT);
+
     Schedule.buildSchedule(Config.get('schedule'));
 
     tempSensor.begin();
@@ -26,24 +31,51 @@ function setup() {
     }
 
     Timer.set(2000, true, function() {
-        tempSensor.requestTemperatures();
-
-        let temp = tempSensor.getTempC(tempSensorAddress);
+        let temp = getTemperature();
 
         print('Temperature:', temp, '*C');
 
-        controlServo(temp, Schedule.currentState());
+        controlServo(temp, Schedule.currentSchedule().on);
     }, null);
 
-    RPC.addHandler('setconfig', function(newConfig) {
+    RPC.addHandler('config.set', function(newConfig) {
+        if (newConfig === null) {
+            return false;
+        }
+
         Config.merge(newConfig);
         Schedule.buildSchedule(Config.get('schedule'));
+
         return true;
     });
 
-    RPC.addHandler('getconfig', function () {
+    RPC.addHandler('config.get', function () {
         return Config.get();
     });
+
+    RPC.addHandler('temperature', function () {
+        return getTemperature();
+    });
+
+    RPC.addHandler('state', function() {
+        let currentSchedule = Schedule.currentSchedule();
+
+        return {
+            schedule: {
+                start: currentSchedule.start,
+                end: currentSchedule.end,
+                state: currentSchedule.on ? 'on' : 'off'
+            },
+            state: servoOpen ? 'on' : 'off',
+            temperature: getTemperature()
+        };
+    })
+}
+
+function getTemperature() {
+    tempSensor.requestTemperatures();
+
+    return tempSensor.getTempC(tempSensorAddress);
 }
 
 function controlServo(temp, on) {

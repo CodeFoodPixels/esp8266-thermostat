@@ -66,11 +66,12 @@ let Schedule = {
 
         this._schedule = builtSchedule;
     },
-    currentState: function() {
+    currentSchedule: function() {
         let now = Timer.now();
         let day = Timer.fmt("%A", now);
-        let hour = Util.parseInt(Timer.fmt("%H", now));
-        let minute = Util.parseInt(Timer.fmt("%A", now));
+        let time = Util.split(Timer.fmt("%H:%M", now), ":");
+        let hour = Util.parseInt(time[0]);
+        let minute = Util.parseInt(time[1]);
         let daySchedule = this._schedule[day] || [];
 
         for (let i = 0; i < daySchedule.length; i++) {
@@ -89,7 +90,7 @@ let Schedule = {
                     )
                 )
             ) {
-                return daySchedule[i].on;
+                return daySchedule[i];
             }
         }
     }
