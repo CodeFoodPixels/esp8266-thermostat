@@ -1,109 +1,44 @@
 {
     "temperature": 18,
-    "threshold": 2,
+    "threshold": 1,
     "schedule": {
-        "Monday": [{
-            "hour": 5,
-            "minute": 30,
-            "on": true
-        }, {
-            "hour": 8,
-            "minute": 30,
-            "on": false
-        }, {
-            "hour": 17,
-            "minute": 30,
-            "on": true
-        }, {
-            "hour": 23,
-            "minute": 30,
-            "on": false
-        }],
-        "Tuesday": [{
-            "hour": 5,
-            "minute": 30,
-            "on": true
-        }, {
-            "hour": 8,
-            "minute": 30,
-            "on": false
-        }, {
-            "hour": 17,
-            "minute": 30,
-            "on": true
-        }, {
-            "hour": 23,
-            "minute": 30,
-            "on": false
-        }],
-        "Wednesday": [{
-            "hour": 5,
-            "minute": 30,
-            "on": true
-        }, {
-            "hour": 8,
-            "minute": 30,
-            "on": false
-        }, {
-            "hour": 17,
-            "minute": 30,
-            "on": true
-        }, {
-            "hour": 23,
-            "minute": 30,
-            "on": false
-        }],
-        "Thursday": [{
-            "hour": 5,
-            "minute": 30,
-            "on": true
-        }, {
-            "hour": 8,
-            "minute": 30,
-            "on": false
-        }, {
-            "hour": 17,
-            "minute": 30,
-            "on": true
-        }, {
-            "hour": 23,
-            "minute": 30,
-            "on": false
-        }],
-        "Friday": [{
-            "hour": 5,
-            "minute": 30,
-            "on": true
-        }, {
-            "hour": 8,
-            "minute": 30,
-            "on": false
-        }, {
-            "hour": 17,
-            "minute": 30,
-            "on": true
-        }, {
-            "hour": 23,
-            "minute": 30,
-            "on": false
-        }],
-        "Saturday": [{
-            "hour": 9,
-            "minute": 30,
-            "on": true
-        }, {
-            "hour": 23,
-            "minute": 30,
-            "on": false
-        }],
-        "Sunday": [{
-            "hour": 9,
-            "minute": 30,
-            "on": true
-        }, {
-            "hour": 23,
-            "minute": 30,
-            "on": false
-        }]
+        "Monday": [
+            {"time": "5:30", "on": true},
+            {"time": "8:30", "on": false},
+            {"time": "17:30", "on": true},
+            {"time": "23:30", "on": false}
+        ],
+        "Tuesday": [
+            {"time": "5:30", "on": true},
+            {"time": "8:30", "on": false},
+            {"time": "17:30", "on": true},
+            {"time": "23:30", "on": false}
+        ],
+        "Wednesday": [
+            {"time": "5:30", "on": true},
+            {"time": "8:30", "on": false},
+            {"time": "17:30", "on": true},
+            {"time": "23:30", "on": false}
+        ],
+        "Thursday": [
+            {"time": "5:30", "on": true},
+            {"time": "8:30", "on": false},
+            {"time": "17:30", "on": true},
+            {"time": "23:30", "on": false}
+        ],
+        "Friday": [
+            {"time": "5:30", "on": true},
+            {"time": "8:30", "on": false},
+            {"time": "17:30", "on": true},
+            {"time": "23:30", "on": false}
+        ],
+        "Saturday": [
+            {"time": "9:30", "on": true},
+            {"time": "23:30", "on": false}
+        ],
+        "Sunday": [
+            {"time": "9:30", "on": true},
+            {"time": "23:30", "on": false}
+        ]
     }
 }

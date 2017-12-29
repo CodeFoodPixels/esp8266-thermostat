@@ -26,16 +26,18 @@ function(Util, Config) {
             }
 
             for (let a = 0; a < daySchedule.length; a++) {
+                let startParts = Util.split(daySchedule[a].time, ':');
                 let end;
 
                 if (a === daySchedule.length - 1) {
                     end = { hour: 24, minute: 00 };
                 } else {
-                    end = { hour: daySchedule[a + 1].hour, minute: daySchedule[a + 1].minute }
+                    let endParts = Util.split(daySchedule[a + 1].time, ':');
+                    end = { hour: parseInt(endParts[0]), minute: parseInt(endParts[1]) }
                 }
 
                 builtSchedule[day][a + 1] = {
-                    start: { hour: daySchedule[a].hour, minute: daySchedule[a].minute },
+                    start: { hour: parseInt(startParts[0]), minute: parseInt(startParts[1]) },
                     end: end,
                     on: daySchedule[a].on
                 }
