@@ -4,9 +4,10 @@ load('api_timer.js');
 load('api_arduino_onewire.js');
 load('api_arduino_dallas_temp.js');
 load('api_pwm.js');
-load('config.js');
-load('util.js');
-load('schedule.js');
+
+let Util = (load('util.js'))();
+let Config = (load('config.js'))(Util);
+let Schedule = (load('schedule.js'))(Util, Config);
 
 let tempSensor = DallasTemperature.create(OneWire.create(2));
 let tempSensorAddress = '00000000';
@@ -17,8 +18,6 @@ function setup() {
     GPIO.set_mode(2, GPIO.MODE_OUTPUT);
     GPIO.write(2, 0);
     GPIO.set_mode(2, GPIO.MODE_INPUT);
-
-    Schedule.buildSchedule(Config.get('schedule'));
 
     tempSensor.begin();
     PWM.set(5, 50, 0);

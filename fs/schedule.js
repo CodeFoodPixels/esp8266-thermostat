@@ -1,8 +1,9 @@
-load('api_timer.js');
-load('util.js');
+function(Util, Config) {
+    load('api_timer.js');
 
-let Schedule = {
-    buildSchedule: function (schedule) {
+    let _schedule;
+
+    function buildSchedule(schedule) {
         let days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         let builtSchedule = {
             Monday: [],
@@ -64,33 +65,38 @@ let Schedule = {
             builtSchedule[day][0].on = prevDayScheduleLastItem.on;
         }
 
-        this._schedule = builtSchedule;
-    },
-    currentSchedule: function() {
-        let now = Timer.now();
-        let day = Timer.fmt("%A", now);
-        let time = Util.split(Timer.fmt("%H:%M", now), ":");
-        let hour = Util.parseInt(time[0]);
-        let minute = Util.parseInt(time[1]);
-        let daySchedule = this._schedule[day] || [];
+        _schedule = builtSchedule;
+    }
 
-        for (let i = 0; i < daySchedule.length; i++) {
-            if (
-                (
-                    hour > daySchedule[i].start.hour ||
+    buildSchedule(Config.get('schedule'));
+
+    return {
+        currentSchedule: function() {
+            let now = Timer.now();
+            let day = Timer.fmt("%A", now);
+            let time = Util.split(Timer.fmt("%H:%M", now), ":");
+            let hour = Util.parseInt(time[0]);
+            let minute = Util.parseInt(time[1]);
+            let daySchedule = _schedule[day] || [];
+
+            for (let i = 0; i < daySchedule.length; i++) {
+                if (
                     (
-                        hour === daySchedule[i].start.hour &&
-                        minute >= daySchedule[i].start.minute
+                        hour > daySchedule[i].start.hour ||
+                        (
+                            hour === daySchedule[i].start.hour &&
+                            minute >= daySchedule[i].start.minute
+                        )
+                    ) && (
+                        hour < daySchedule[i].end.hour ||
+                        (
+                            hour === daySchedule[i].end.hour &&
+                            minute < daySchedule[i].end.minute
+                        )
                     )
-                ) && (
-                    hour < daySchedule[i].end.hour ||
-                    (
-                        hour === daySchedule[i].end.hour &&
-                        minute < daySchedule[i].end.minute
-                    )
-                )
-            ) {
-                return daySchedule[i];
+                ) {
+                    return daySchedule[i];
+                }
             }
         }
     }
