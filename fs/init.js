@@ -52,11 +52,7 @@ function setup() {
         return Config.get();
     });
 
-    RPC.addHandler('temperature', function () {
-        return getTemperature();
-    });
-
-    RPC.addHandler('state', function() {
+    RPC.addHandler('status', function() {
         let currentSchedule = Schedule.currentSchedule();
 
         return {
