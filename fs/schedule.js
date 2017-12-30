@@ -1,85 +1,90 @@
 function(Util, Config) {
     load('api_timer.js');
 
-    let _schedule;
+    let Schedule = {
+        _schedule: {},
 
-    function buildSchedule(schedule) {
-        let days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        let builtSchedule = {
-            Monday: [],
-            Tuesday: [],
-            Wednesday: [],
-            Thursday: [],
-            Friday: [],
-            Saturday: [],
-            Sunday: []
-        };
+        _override: {},
 
-        for (let i = 0; i < 7; i++) {
-            let day = days[i];
-            let daySchedule = schedule[day];
+        Util: Util,
 
-            builtSchedule[day][0] = {
-                start: { hour: 0, minute: 0 },
-                end: { hour: 24, minute: 00 },
-                on: false
-            }
+        Config: Config,
 
-            for (let a = 0; a < daySchedule.length; a++) {
-                let startParts = Util.split(daySchedule[a].time, ':');
-                let end;
+        buildSchedule: function() {
+            let schedule = this.Config.get('schedule');
+            let days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            let builtSchedule = {
+                Monday: [],
+                Tuesday: [],
+                Wednesday: [],
+                Thursday: [],
+                Friday: [],
+                Saturday: [],
+                Sunday: []
+            };
 
-                if (a === daySchedule.length - 1) {
-                    end = { hour: 24, minute: 00 };
-                } else {
-                    let endParts = Util.split(daySchedule[a + 1].time, ':');
-                    end = { hour: parseInt(endParts[0]), minute: parseInt(endParts[1]) }
+            for (let i = 0; i < 7; i++) {
+                let day = days[i];
+                let daySchedule = schedule[day];
+
+                builtSchedule[day][0] = {
+                    start: { hour: 0, minute: 0 },
+                    end: { hour: 24, minute: 00 },
+                    on: false
                 }
 
-                builtSchedule[day][a + 1] = {
-                    start: { hour: parseInt(startParts[0]), minute: parseInt(startParts[1]) },
-                    end: end,
-                    on: daySchedule[a].on
+                for (let a = 0; a < daySchedule.length; a++) {
+                    let startParts = this.Util.split(daySchedule[a].time, ':');
+                    let end;
+
+                    if (a === daySchedule.length - 1) {
+                        end = { hour: 24, minute: 00 };
+                    } else {
+                        let endParts = this.Util.split(daySchedule[a + 1].time, ':');
+                        end = { hour: this.Util.parseInt(endParts[0]), minute: this.Util.parseInt(endParts[1]) }
+                    }
+
+                    builtSchedule[day][a + 1] = {
+                        start: { hour: this.Util.parseInt(startParts[0]), minute: this.Util.parseInt(startParts[1]) },
+                        end: end,
+                        on: daySchedule[a].on
+                    }
                 }
             }
-        }
 
-        for (let i = 0; i < 7; i++) {
-            let day = days[i];
-            let end = { hour: 24, minute: 00 };
+            for (let i = 0; i < 7; i++) {
+                let day = days[i];
+                let end = { hour: 24, minute: 00 };
 
-            if (builtSchedule[day].length > 1) {
-                if (
-                    builtSchedule[day][1].start.hour === 0 &&
-                    builtSchedule[day][1].start.minute === 0
-                ) {
-                    builtSchedule[day] = builtSchedule[day].splice(0, 1);
-                    continue;
+                if (builtSchedule[day].length > 1) {
+                    if (
+                        builtSchedule[day][1].start.hour === 0 &&
+                        builtSchedule[day][1].start.minute === 0
+                    ) {
+                        builtSchedule[day] = builtSchedule[day].splice(0, 1);
+                        continue;
+                    }
+                    end = builtSchedule[day][1].start
                 }
-                end = builtSchedule[day][1].start
+
+                let prevDay = days[i === 0 ? 6 : i - 1];
+                let prevDaySchedule = builtSchedule[prevDay];
+                let prevDayScheduleLastItem = prevDaySchedule[prevDaySchedule.length - 1];
+
+                builtSchedule[day][0].end = end;
+                builtSchedule[day][0].on = prevDayScheduleLastItem.on;
             }
 
-            let prevDay = days[i === 0 ? 6 : i - 1];
-            let prevDaySchedule = builtSchedule[prevDay];
-            let prevDayScheduleLastItem = prevDaySchedule[prevDaySchedule.length - 1];
+            this._schedule = builtSchedule;
+        },
 
-            builtSchedule[day][0].end = end;
-            builtSchedule[day][0].on = prevDayScheduleLastItem.on;
-        }
-
-        _schedule = builtSchedule;
-    }
-
-    buildSchedule(Config.get('schedule'));
-
-    return {
         currentSchedule: function() {
             let now = Timer.now();
             let day = Timer.fmt("%A", now);
-            let time = Util.split(Timer.fmt("%H:%M", now), ":");
-            let hour = Util.parseInt(time[0]);
-            let minute = Util.parseInt(time[1]);
-            let daySchedule = _schedule[day] || [];
+            let time = this.Util.split(Timer.fmt("%H:%M", now), ":");
+            let hour = this.Util.parseInt(time[0]);
+            let minute = this.Util.parseInt(time[1]);
+            let daySchedule = this._schedule[day] || [];
 
             for (let i = 0; i < daySchedule.length; i++) {
                 if (
@@ -100,6 +105,64 @@ function(Util, Config) {
                     return daySchedule[i];
                 }
             }
+
+            return {
+                start: { hour: 0, minute: 0 },
+                end: { hour: 24, minute: 00 },
+                on: false
+            };
+        },
+
+        buildOverride: function() {
+            let override = this.Config.get('override');
+
+            if (!override.start || !override.end) {
+                return;
+            }
+
+            function parseDate(str, Util) {
+                let parts = Util.split(str, ' ');
+
+                let dateParts = Util.split(parts[0], '-');
+                let timeParts = Util.split(parts[1], ':');
+
+                let year = Util.parseInt(dateParts[0]);
+                let month = Util.parseInt(dateParts[1]);
+                let day = Util.parseInt(dateParts[2]);
+
+                let hour = Util.parseInt(timeParts[0]);
+                let minute = Util.parseInt(timeParts[1]);
+
+                return Util.buildEpoch(year, month, day, hour, minute, 0);
+            }
+
+            this._override = {
+                start: parseDate(override.start, Util),
+                end: parseDate(override.end, Util),
+                on: override.on,
+                temperature: override.temperature
+            }
+        },
+
+        currentOverride: function() {
+            if (!this._override.start || !this._override.end) {
+                return {};
+            }
+
+            let now = Timer.now();
+
+            if (now >= this._override.start && now < this._override.end) {
+                return { on: this._override.on, temperature: this._override.temperature };
+            }
+
+            return {};
         }
-    }
+    };
+
+    Timer.set(10000, 0, function(Schedule) {
+        Schedule.buildSchedule();
+        Schedule.buildOverride();
+    }, Schedule);
+
+    return Schedule;
 }

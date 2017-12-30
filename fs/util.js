@@ -62,6 +62,8 @@ function() {
             }
 
             return returnObj;
-        }
+        },
+
+        buildEpoch: ffi('int buildEpoch(int, int, int, int, int, int)')
     }
 }

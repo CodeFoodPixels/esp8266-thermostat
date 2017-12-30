@@ -2,6 +2,8 @@ function(Util) {
     load('api_file.js');
 
     return {
+        Util: Util,
+
         _config: JSON.parse(File.read('config.json')),
 
         get: function (key) {
@@ -18,7 +20,7 @@ function(Util) {
         },
 
         merge: function (config) {
-            this._config = Util.mergeObj(this._config, config);
+            this._config = this.Util.mergeObj(this._config, config);
             this.save();
         },
 

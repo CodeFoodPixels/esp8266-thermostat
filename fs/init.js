@@ -1,90 +1,61 @@
-load('api_rpc.js');
-load('api_gpio.js');
 load('api_timer.js');
 load('api_arduino_onewire.js');
 load('api_arduino_dallas_temp.js');
 load('api_pwm.js');
 
 let Util = (load('util.js'))();
+let State = (load('state.js'))(Util);
 let Config = (load('config.js'))(Util);
 let Schedule = (load('schedule.js'))(Util, Config);
-
-let tempSensor = DallasTemperature.create(OneWire.create(2));
-let tempSensorAddress = '00000000';
-let tempSensorFound = false;
-let servoOpen = false;
+let Api = (load('api.js'))(Config, Schedule, State);
 
 function setup() {
-    GPIO.set_mode(2, GPIO.MODE_OUTPUT);
-    GPIO.write(2, 0);
-    GPIO.set_mode(2, GPIO.MODE_INPUT);
+    let tempSensor = DallasTemperature.create(OneWire.create(2));
+    let tempSensorAddress = '00000000';
 
     tempSensor.begin();
+
     PWM.set(5, 50, 0);
     resetPWM();
 
     if (tempSensor.getDeviceCount() > 0) {
-        tempSensorFound = tempSensor.getAddress(tempSensorAddress, 0);
+        tempSensor.getAddress(tempSensorAddress, 0);
     } else {
         return print('No sensors found. Exiting.');
     }
 
-    Timer.set(2000, true, function() {
-        let temp = getTemperature();
+    Timer.set(2000, true, function(sensorData) {
+        sensorData.tempSensor.requestTemperatures();
+
+        let temp =  sensorData.tempSensor.getTempC(sensorData.tempSensorAddress);
 
         print('Temperature:', temp, '*C');
 
-        controlServo(temp, Schedule.currentSchedule().on);
-    }, null);
+        State.dispatch({ type: 'UPDATE_TEMPERATURE', temperature: temp });
+    }, {tempSensor: tempSensor, tempSensorAddress: tempSensorAddress});
 
-    RPC.addHandler('config.set', function(newConfig) {
-        if (newConfig === null) {
-            return false;
-        }
-
-        Config.merge(newConfig);
-        Schedule.buildSchedule(Config.get('schedule'));
-
-        return true;
+    State.subscribe(function() {
+        controlServo();
     });
-
-    RPC.addHandler('config.get', function () {
-        return Config.get();
-    });
-
-    RPC.addHandler('status', function() {
-        let currentSchedule = Schedule.currentSchedule();
-
-        return {
-            schedule: {
-                start: currentSchedule.start,
-                end: currentSchedule.end,
-                state: currentSchedule.on ? 'on' : 'off'
-            },
-            state: servoOpen ? 'on' : 'off',
-            temperature: getTemperature()
-        };
-    })
 }
 
-function getTemperature() {
-    tempSensor.requestTemperatures();
+function controlServo() {
+    let override = Schedule.currentOverride();
 
-    return tempSensor.getTempC(tempSensorAddress);
-}
+    let on = typeof override.on !== 'undefined' ? override.on : Schedule.currentSchedule().on;
+    let state = State.getState();
 
-function controlServo(temp, on) {
-    let targetTemp = Config.get('temperature') || 0;
+    let targetTemp = typeof override.temperature !== 'undefined' ? override.temperature : (Config.get('temperature') || 0);
     let threshold = Config.get('threshold') || 0;
 
-    if (on && temp < (targetTemp - threshold) && !servoOpen) {
+    if (on && state.temperature < (targetTemp - threshold) && !state.servoOpen) {
         PWM.set(5, 50, 0.15);
         resetPWM();
-        servoOpen = true;
-    } else if ((!on || temp >=targetTemp) && servoOpen) {
+        State.dispatch({ type: 'UPDATE_SERVO_STATE', servoOpen: true });
+    } else if ((!on || state.temperature >=targetTemp) && state.servoOpen) {
         PWM.set(5, 50, 0);
         resetPWM();
-        servoOpen = false;
+        State.dispatch({ type: 'UPDATE_SERVO_STATE', servoOpen: false });
     }
 }
 

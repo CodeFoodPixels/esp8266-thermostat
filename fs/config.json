@@ -1,6 +1,11 @@
 {
     "temperature": 18,
     "threshold": 1,
+    "override": {
+        "start": "2017-12-30 21:00",
+        "end": "2017-12-30 21:20",
+        "on": false
+    },
     "schedule": {
         "Monday": [
             {"time": "5:30", "on": true},
