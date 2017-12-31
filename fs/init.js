@@ -4,6 +4,7 @@ load('api_arduino_dallas_temp.js');
 load('api_pwm.js');
 
 let Util = (load('util.js'))();
+let Broadcast = (load('broadcast.js'))();
 let State = (load('state.js'))(Util);
 let Config = (load('config.js'))(Util);
 let Schedule = (load('schedule.js'))(Util, Config);

@@ -1,6 +1,6 @@
-function() {
-    load("api_math.js");
+load("api_math.js");
 
+function() {
     return {
         indexOf: function (haystack, needle) {
             for (let i = 0; i < haystack.length; i++) {

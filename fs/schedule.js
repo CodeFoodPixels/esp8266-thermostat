@@ -1,6 +1,6 @@
-function(Util, Config) {
-    load('api_timer.js');
+load('api_timer.js');
 
+function(Util, Config) {
     let Schedule = {
         _schedule: {},
 
@@ -139,8 +139,11 @@ function(Util, Config) {
             this._override = {
                 start: parseDate(override.start, Util),
                 end: parseDate(override.end, Util),
-                on: override.on,
-                temperature: override.temperature
+                on: override.on
+            }
+
+            if (override.temperature) {
+                this._override.temperature = override.temperature
             }
         },
 
@@ -152,7 +155,17 @@ function(Util, Config) {
             let now = Timer.now();
 
             if (now >= this._override.start && now < this._override.end) {
-                return { on: this._override.on, temperature: this._override.temperature };
+                let override = {
+                    on: this._override.on,
+                    start: Timer.fmt('%F %R', this._override.start),
+                    end: Timer.fmt('%F %R', this._override.end)
+                };
+
+                if (this._override.temperature) {
+                    override.temperature = this._override.temperature
+                }
+
+                return override;
             }
 
             return {};

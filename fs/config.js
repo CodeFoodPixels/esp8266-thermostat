@@ -1,6 +1,6 @@
-function(Util) {
-    load('api_file.js');
+load('api_file.js');
 
+function(Util) {
     return {
         Util: Util,
 
