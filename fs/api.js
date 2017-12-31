@@ -7,8 +7,14 @@ function(Config, Schedule, State) {
         }
 
         Config.merge(newConfig);
-        Schedule.buildSchedule();
-        Schedule.buildOverride();
+
+        if (typeof newConfig.schedule !== 'undefined') {
+            Schedule.buildSchedule();
+        }
+
+        if (typeof newConfig.override !== 'undefined') {
+            Schedule.buildOverride();
+        }
 
         return true;
     });
