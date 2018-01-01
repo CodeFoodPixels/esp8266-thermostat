@@ -1,26 +1,21 @@
 load('api_rpc.js');
 
-function(Config, Schedule, State) {
+function(Config, Schedule, State, Util) {
     RPC.addHandler('config.set', function (newConfig) {
         if (newConfig === null) {
             return false;
         }
 
-        Config.merge(newConfig);
+        let config = State.getState().config;
 
-        if (typeof newConfig.schedule !== 'undefined') {
-            Schedule.buildSchedule();
-        }
-
-        if (typeof newConfig.override !== 'undefined') {
-            Schedule.buildOverride();
-        }
+        State.dispatch(Config.save(Util.mergeObj(config, newConfig)));
 
         return true;
     });
 
     RPC.addHandler('config.get', function () {
-        return Config.get();
+        let state = State.getState();
+        return state.config;
     });
 
     RPC.addHandler('status', function () {

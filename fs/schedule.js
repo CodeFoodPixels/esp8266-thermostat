@@ -1,6 +1,6 @@
 load('api_timer.js');
 
-function(Util, Config) {
+function(Util, State) {
     let Schedule = {
         _schedule: {},
 
@@ -8,10 +8,11 @@ function(Util, Config) {
 
         Util: Util,
 
-        Config: Config,
+        State: State,
 
         buildSchedule: function() {
-            let schedule = this.Config.get('schedule');
+            print('building schedule');
+            let schedule = this.State.getState().config.schedule;
             let days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
             let builtSchedule = {
                 Monday: [],
@@ -114,7 +115,9 @@ function(Util, Config) {
         },
 
         buildOverride: function() {
-            let override = this.Config.get('override');
+            print('building override');
+
+            let override = this.State.getState().config.override;
 
             if (!override.start || !override.end) {
                 return;
@@ -172,10 +175,30 @@ function(Util, Config) {
         }
     };
 
-    Timer.set(10000, 0, function(Schedule) {
-        Schedule.buildSchedule();
-        Schedule.buildOverride();
-    }, Schedule);
+    Timer.set(10000, 0, function(userdata) {
+        userdata.Schedule.buildSchedule();
+        userdata.Schedule.buildOverride();
+
+        userdata.State.subscribe(function(userdata) {
+            let state = userdata.State.getState();
+            let schedule = state.config.schedule;
+            let override = state.config.override;
+
+            if (JSON.stringify(schedule) !== JSON.stringify(userdata.prevConfig.schedule)) {
+                userdata.Schedule.buildSchedule();
+            }
+
+            if (JSON.stringify(override) !== JSON.stringify(userdata.prevConfig.override)) {
+                userdata.Schedule.buildOverride();
+            }
+
+            userdata.prevConfig = state.config;
+        }, {
+            Schedule: Schedule,
+            State: State,
+            prevConfig: userdata.State.getState().config
+        });
+    }, {Schedule: Schedule, State: State});
 
     return Schedule;
 }
