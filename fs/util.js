@@ -1,4 +1,4 @@
-load("api_math.js");
+load('api_math.js');
 
 function() {
     return {
@@ -29,11 +29,11 @@ function() {
         },
 
         parseInt: function (str) {
-            let numbers = "0123456789";
+            let numbers = '0123456789';
             let int = 0;
 
             for (let i = 0; i < str.length; i++) {
-                if (str[i] === "0") {
+                if (str[i] === '0') {
                     continue;
                 }
 

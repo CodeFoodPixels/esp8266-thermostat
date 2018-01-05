@@ -81,8 +81,8 @@ function(Util, State) {
 
         currentSchedule: function() {
             let now = Timer.now();
-            let day = Timer.fmt("%A", now);
-            let time = this.Util.split(Timer.fmt("%H:%M", now), ":");
+            let day = Timer.fmt('%A', now);
+            let time = this.Util.split(Timer.fmt('%H:%M', now), ':');
             let hour = this.Util.parseInt(time[0]);
             let minute = this.Util.parseInt(time[1]);
             let daySchedule = this._schedule[day] || [];
