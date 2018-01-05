@@ -50,6 +50,10 @@ function(Util, State) {
                         end: end,
                         on: daySchedule[a].on
                     }
+
+                    if (typeof daySchedule[a].temperature === 'undefined') {
+                        builtSchedule[day][a + 1].temperature = daySchedule[a].temperature
+                    }
                 }
             }
 

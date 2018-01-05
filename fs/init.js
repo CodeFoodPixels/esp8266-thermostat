@@ -48,11 +48,21 @@ function setup() {
 
 function controlServo() {
     let override = Schedule.currentOverride();
+    let schedule = Schedule.currentSchedule();
 
-    let on = typeof override.on !== 'undefined' ? override.on : Schedule.currentSchedule().on;
+    let on = typeof override.on !== 'undefined' ? override.on : schedule.on;
     let state = State.getState();
 
-    let targetTemp = typeof override.temperature !== 'undefined' ? override.temperature : (state.config.temperature || 0);
+    let targetTemp;
+
+    if (typeof override.temperature !== 'undefined') {
+        targetTemp = override.temperature;
+    } else if (typeof schedule.temperature !== 'undefined') {
+        targetTemp = schedule.temperature;
+    } else {
+        targetTemp = state.config.temperature || 0;
+    }
+
     let threshold = state.config.threshold || 0;
 
     if (on && state.temperature < (targetTemp - threshold) && !state.servoOpen) {
