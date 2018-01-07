@@ -42,34 +42,62 @@ function setup() {
     }, {tempSensor: tempSensor, tempSensorAddress: tempSensorAddress});
 
     State.subscribe(function() {
-        controlServo();
+        determineServoState();
     });
 }
 
-function controlServo() {
+function determineServoState() {
     let override = Schedule.currentOverride();
     let schedule = Schedule.currentSchedule();
-
-    let on = typeof override.on !== 'undefined' ? override.on : schedule.on;
     let state = State.getState();
 
-    let targetTemp;
+    let threshold = state.config.threshold || 0;
+    let targetTemperature = state.config.temperature || 0;
 
-    if (typeof override.temperature !== 'undefined') {
-        targetTemp = override.temperature;
-    } else if (typeof schedule.temperature !== 'undefined') {
-        targetTemp = schedule.temperature;
-    } else {
-        targetTemp = state.config.temperature || 0;
+    // Minimum temperature is a hard minimum so we add the threshold
+    // to it to work out our desired temperature
+    let minTemp = (state.config.minimumTemperature || 0) + threshold;
+
+    if (state.temperature < (minTemp - threshold)) {
+        return setServoState(true);
     }
 
-    let threshold = state.config.threshold || 0;
+    let expectedState = override || schedule;
 
-    if (on && state.temperature < (targetTemp - threshold) && !state.servoOpen) {
+    if (expectedState.on) {
+        // minimum temperature beats everything
+        if (expectedState.temperature && expectedState.temperature >= minTemp) {
+            if (state.temperature < (expectedState.temperature - threshold)) {
+                return setServoState(true);
+            }
+
+            if (state.temperature >= expectedState.temperature) {
+                return setServoState(false);
+            }
+        }
+
+        if (state.temperature < (targetTemperature - threshold)) {
+            return setServoState(true);
+        }
+
+        if (state.temperature >= targetTemperature) {
+            return setServoState(false);
+        }
+    }
+
+    if (state.temperature >= minTemp) {
+        return setServoState(false);
+    }
+}
+
+function setServoState(on) {
+    let state = State.getState();
+
+    if (on && !state.servoOpen) {
         PWM.set(5, 50, 0.15);
         resetPWM();
         State.dispatch({ type: 'UPDATE_SERVO_STATE', servoOpen: true });
-    } else if ((!on || state.temperature >=targetTemp) && state.servoOpen) {
+    } else if (!on && state.servoOpen) {
         PWM.set(5, 50, 0);
         resetPWM();
         State.dispatch({ type: 'UPDATE_SERVO_STATE', servoOpen: false });
