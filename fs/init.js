@@ -52,40 +52,35 @@ function determineServoState() {
     let state = State.getState();
 
     let threshold = state.config.threshold || 0;
-    let targetTemperature = state.config.temperature || 0;
 
     // Minimum temperature is a hard minimum so we add the threshold
     // to it to work out our desired temperature
     let minTemp = (state.config.minimumTemperature || 0) + threshold;
 
-    if (state.temperature < (minTemp - threshold)) {
+    let upperBound = minTemp;
+
+    let expectedState = typeof override.state !== 'undefined' ? override : schedule;
+
+    if (expectedState.on) {
+        if (expectedState.temperature) {
+            upperBound = expectedState.temperature
+        } else {
+            upperBound = state.config.temperature || 0;
+        }
+    }
+
+    // minimum temperature beats everything
+    if (upperBound < minTemp) {
+        upperBound = minTemp;
+    }
+
+    let lowerBound = upperBound - threshold;
+
+    if (state.temperature < lowerBound) {
         return setServoState(true);
     }
 
-    let expectedState = override || schedule;
-
-    if (expectedState.on) {
-        // minimum temperature beats everything
-        if (expectedState.temperature && expectedState.temperature >= minTemp) {
-            if (state.temperature < (expectedState.temperature - threshold)) {
-                return setServoState(true);
-            }
-
-            if (state.temperature >= expectedState.temperature) {
-                return setServoState(false);
-            }
-        }
-
-        if (state.temperature < (targetTemperature - threshold)) {
-            return setServoState(true);
-        }
-
-        if (state.temperature >= targetTemperature) {
-            return setServoState(false);
-        }
-    }
-
-    if (state.temperature >= minTemp) {
+    if (state.temperature >= upperBound) {
         return setServoState(false);
     }
 }
