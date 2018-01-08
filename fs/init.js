@@ -59,7 +59,7 @@ function determineServoState() {
 
     let upperBound = minTemp;
 
-    let expectedState = typeof override.state !== 'undefined' ? override : schedule;
+    let expectedState = typeof override.on !== 'undefined' ? override : schedule;
 
     if (expectedState.on) {
         if (expectedState.temperature) {
